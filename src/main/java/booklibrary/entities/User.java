@@ -1,5 +1,6 @@
 package booklibrary.entities;
 
+import com.sun.istack.NotNull;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
@@ -13,31 +14,44 @@ import java.util.UUID;
 @Entity
 public class User {
 
-    //generated UUID per user
+    //Generated UUID
     @Id
-        @GeneratedValue(generator = "UUID")
-        @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
-        @Type(type = "org.hibernate.type.UUIDCharType")
-        @Column(updatable = false, nullable = false)
-
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    @Type(type = "org.hibernate.type.UUIDCharType")
+    @Column(updatable = false, nullable = false)
     private UUID id;
 
-    // User Properties
     private String firstName;
     private String lastName;
     private String address;
     private String gender;
     private int age;
+    private String password;
+    private String username;
+    @NotNull
+    private String roles;
 
     public User() {}
 
-    User(String firstName, String lastName, String address, String gender, int age) {
-
+    public User(
+            String firstName,
+            String lastName,
+            String address,
+            String gender,
+            int age,
+            String password,
+            String username,
+            String roles
+    ){
         this.firstName = firstName;
         this.lastName = lastName;
         this.address = address;
         this.gender = gender;
         this.age = age;
+        this.password = password;
+        this.username = username;
+        this.roles = roles;
     }
 
     // Getters
@@ -66,6 +80,18 @@ public class User {
         return this.age;
     }
 
+    public String getPassword() {
+        return password;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getRoles() {
+        return roles;
+    }
+
     // Setters
 
     public void setId(UUID id) {
@@ -92,6 +118,18 @@ public class User {
         this.age = age;
     }
 
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setRoles(String roles) {
+        this.roles = roles;
+    }
+
     @Override
     public boolean equals(Object o) {
 
@@ -102,7 +140,8 @@ public class User {
         User user = (User) o;
         return Objects.equals(this.id, user.id) && Objects.equals(this.firstName, user.firstName)
                 && Objects.equals(this.lastName, user.lastName) && Objects.equals(this.address, user.address)
-                && Objects.equals(this.gender, user.gender) && Objects.equals(this.age, user.age);
+                && Objects.equals(this.gender, user.gender) && Objects.equals(this.age, user.age) && Objects.equals(this.password, user.password)
+                && Objects.equals(this.username, user.username) && Objects.equals(this.roles, user.roles);
     }
 
     @Override

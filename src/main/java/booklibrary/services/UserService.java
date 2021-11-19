@@ -7,9 +7,12 @@ import booklibrary.exceptions.BookNotFoundException;
 import booklibrary.exceptions.BorrowNotFoundException;
 import booklibrary.exceptions.UserNotFoundException;
 import booklibrary.models.BorrowsDTO;
+import booklibrary.models.UsersRequestDTO;
+import booklibrary.models.UsersResponseDTO;
 import booklibrary.repositories.BookRepository;
 import booklibrary.repositories.BorrowRepository;
 import booklibrary.repositories.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,14 +26,16 @@ public class UserService {
     private final UserRepository userRepository;
     private final BorrowRepository borrowRepository;
     private final BookRepository bookRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, BorrowRepository borrowRepository, BookRepository bookRepository) {
+    public UserService(UserRepository userRepository, BorrowRepository borrowRepository, BookRepository bookRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.borrowRepository = borrowRepository;
         this.bookRepository = bookRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
-        //Get All Users
+    //Get All Users
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
@@ -43,26 +48,47 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-        // Save a new User
-    public User saveUser(User newUser) {
-        return userRepository.save(newUser);
+    public UsersResponseDTO saveUser(UsersRequestDTO usersRequestDTO) {
+
+        User user = userRepository.save(new User(
+                usersRequestDTO.getFirstName(),
+                usersRequestDTO.getLastName(),
+                usersRequestDTO.getAddress(),
+                usersRequestDTO.getGender(),
+                usersRequestDTO.getAge(),
+                passwordEncoder.encode(usersRequestDTO.getPassword()),
+                usersRequestDTO.getUsername(),
+                "USER"));
+
+        return new UsersResponseDTO(user);
     }
 
-        // Get one User
+    // Get One User
     public User getUser(UUID id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
     }
 
-    public User updateUser(User updatedUser) {
-        return userRepository.save(updatedUser);
+    //Update User
+    public UsersResponseDTO updateUser(UsersRequestDTO newUser, UUID id) {
+        User user = getUser(id);
+        user.setFirstName(newUser.getFirstName());
+        user.setLastName(newUser.getLastName());
+        user.setAddress(newUser.getAddress());
+        user.setGender(newUser.getGender());
+        user.setAge(newUser.getAge());
+        user.setPassword(passwordEncoder.encode(newUser.getPassword()));
+        user.setUsername(newUser.getUsername());
+        User updatedUser = userRepository.save(user);
+
+        return new UsersResponseDTO(updatedUser);
     }
 
     public void deleteUser(UUID id) {
         userRepository.deleteById(id);
     }
 
-    //Borrows
+    /* Borrows */
     public Borrow saveBorrow(UUID userId, UUID bookId, BorrowsDTO borrowsDTO) {
 
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
@@ -83,14 +109,12 @@ public class UserService {
         return borrowRepository.save(updatedBorrow);
     }
 
-        //Delete One Borrow
     public void deleteBorrow(UUID borrowId) {
         borrowRepository.deleteById(borrowId);
     }
 
-        // Delete All Borrows from one User
     public void deleteAllBorrows(UUID userId) {
-        borrowRepository.deleteAllByUserId(userId); //Does Not work? java.util.UUID cannot be converted to java.lang.Iterable<?
+        borrowRepository.deleteAllByUserId(userId);
     }
 
 

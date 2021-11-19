@@ -17,28 +17,29 @@ public class BookController {
 
     private BookService bookService;
 
-
     BookController(BookService bookService) {
         this.bookService = bookService;
     }
 
+    //Get All Books
     @GetMapping("/books")
     List<Book> all() {
         return bookService.getAllBooks();
     }
 
+    //Create One Book
     @PostMapping("/books")
     Book newBook(@RequestBody Book newBook) {
         return bookService.saveBook(newBook);
     }
 
-    // Single item
-
+    //Get One Book
     @GetMapping("/books/{id}")
     Book one(@PathVariable UUID id) {
         return bookService.getBook(id);
     }
 
+    // Update One Book
     @PutMapping("/books/{id}")
     Book replaceBook(@RequestBody Book newBook, @PathVariable UUID id) {
         Book book = bookService.getBook(id);
@@ -48,6 +49,7 @@ public class BookController {
         return bookService.updateBook(newBook);
     }
 
+    //Delete One Book
     @DeleteMapping("/books/{id}")
     void deleteBook(@PathVariable UUID id) {
         bookService.deleteBook(id);
